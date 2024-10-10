@@ -15,13 +15,13 @@ from core.all_whisper_methods.whisperXapi import (
     save_results, save_language
 )
 from third_party.uvr5.uvr5_for_videolingo import uvr5_for_videolingo
-    
+
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     WHISPER_LANGUAGE = load_key("whisper.language")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     rprint(f"[green]🚀 Starting WhisperX...[/green]")
     rprint(f"[cyan]Device:[/cyan] {device}")
-    
+
     # Adjust batch size based on GPU memory
     if device == "cuda":
         gpu_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)  # convert to GB
@@ -30,7 +30,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
             compute_type = "int8"
         elif gpu_mem <= 8:
             batch_size = 4
-            compute_type = "float16"
+            compute_type = "int8"
         else:
             batch_size = 16
             compute_type = "float16"
@@ -38,9 +38,9 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     else:
         batch_size = 4
         compute_type = "int8"
-    
+
     rprint(f"[green]Starting WhisperX for segment {start:.2f}s to {end:.2f}s...[/green]")
-    
+
     try:
         whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
         if WHISPER_LANGUAGE == 'zh':
@@ -124,18 +124,18 @@ def transcribe(video_file: str):
 
         # step2 Extract audio
         segments = split_audio(audio_file)
-        
+
         # step3 Transcribe audio
         all_results = []
         for start, end in segments:
             result = transcribe_audio(audio_file, start, end)
             all_results.append(result)
-        
+
         # step4 Combine results
         combined_result = {'segments': []}
         for result in all_results:
             combined_result['segments'].extend(result['segments'])
-        
+
         df = process_transcription(combined_result)
         save_results(df)
     else:

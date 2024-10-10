@@ -203,7 +203,7 @@ class FasterWhisperPipeline(Pipeline):
                 self.tokenizer = faster_whisper.tokenizer.Tokenizer(self.model.hf_tokenizer,
                                                                     self.model.model.is_multilingual, task=task,
                                                                     language=language)
-                
+
         if self.suppress_numerals:
             previous_suppress_tokens = self.options.suppress_tokens
             numeral_symbol_tokens = find_numeral_symbol_tokens(self.tokenizer)
@@ -259,7 +259,7 @@ class FasterWhisperPipeline(Pipeline):
 def load_model(whisper_arch,
                device,
                device_index=0,
-               compute_type="float16",
+               compute_type="int8",
                asr_options=None,
                language : Optional[str] = None,
                vad_model=None,
