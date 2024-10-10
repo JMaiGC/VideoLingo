@@ -68,7 +68,6 @@ def fish_tts_local(text,save_path,number,task_df):
         "reference_text": reference_text,
     }
     headers = {
-        "Authorization": f"Bearer {fish_set['api_key']}",
         "Content-Type": "application/json"
     }
 
