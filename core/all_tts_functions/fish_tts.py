@@ -1,3 +1,4 @@
+from openai.lib import streaming
 import requests
 from pathlib import Path
 import os, sys
@@ -5,8 +6,63 @@ from rich import print as rprint
 from moviepy.editor import AudioFileClip
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
+from typing import Annotated, Literal, Optional
 
-def fish_tts(text, save_path):
+from pydantic import BaseModel, Field, conint
+import ormsgpack
+
+class ServeReferenceAudio(BaseModel):
+    audio: bytes
+    text: str
+
+
+class ServeTTSRequest(BaseModel):
+        text: str
+        chunk_length: Annotated[int, conint(ge=100, le=300, strict=True)] = 200
+        # Audio format
+        format: Literal["wav", "pcm", "mp3"] = "wav"
+        mp3_bitrate: Literal[64, 128, 192] = 128
+        # References audios for in-context learning
+        references: list[ServeReferenceAudio] = []
+        # Reference id
+        # For example, if you want use https://fish.audio/m/7f92f8afb8ec43bf81429cc1c9199cb1/
+        # Just pass 7f92f8afb8ec43bf81429cc1c9199cb1
+        reference_id: str | None = None
+        # Normalize text for en & zh, this increase stability for numbers
+        normalize: bool = True
+        mp3_bitrate: Optional[int] = 64
+        opus_bitrate: Optional[int] = -1000
+        # Balance mode will reduce latency to 300ms, but may decrease stability
+        latency: Literal["normal", "balanced"] = "normal"
+        # not usually used below
+        streaming: bool = False
+        emotion: Optional[str] = None
+        max_new_tokens: int = 1024
+        top_p: Annotated[float, Field(ge=0.1, le=1.0, strict=True)] = 0.7
+        repetition_penalty: Annotated[float, Field(ge=0.9, le=2.0, strict=True)] = 1.2
+        temperature: Annotated[float, Field(ge=0.1, le=1.0, strict=True)] = 0.7
+
+def read_ref_text(ref_text):
+    path = Path(ref_text)
+    if path.exists() and path.is_file():
+        with path.open("r", encoding="utf-8") as file:
+            return file.read()
+    return ref_text
+
+def audio_to_bytes(file_path):
+    with open(file_path, "rb") as wav_file:
+            wav = wav_file.read()
+    return wav
+
+def fish_tts(text,save_path,number,task_df):
+    fish_set = load_key("fish_tts")
+    type = fish_set['type']
+    if type == 'online':
+        fish_tts_online(text, save_path)
+    else:
+        fish_tts_local(text,save_path,number,task_df)
+
+def fish_tts_online(text, save_path):
     fish_set = load_key("fish_tts")
     if fish_set["character"] not in fish_set["character_id_dict"]:
         raise ValueError(f"Character <{fish_set['character']}> not found in <character_id_dict>")
@@ -57,23 +113,35 @@ def fish_tts_local(text,save_path,number,task_df):
     fish_set = load_key("fish_tts")
     url = fish_set['base_url']
     current_dir = Path.cwd()
-    ref_audio_path = current_dir / f"output/audio/refers/{number}.wav"
+
+    ref_audio_path = current_dir.as_posix()+  f"/output/audio/refers/{number}.wav"
     reference_text = task_df.loc[task_df['number'] == number, 'origin'].values[0]
-    payload = {
+
+    byte_audio = audio_to_bytes(ref_audio_path)
+    ref_text = read_ref_text(reference_text)
+    data = {
         "text": text,
         "format": "mp3",
         "mp3_bitrate": 128,
         "normalize": True,
-        "reference_audio": ref_audio_path,
-        "reference_text": reference_text,
+        "references": [
+            ServeReferenceAudio(audio=byte_audio, text=ref_text)
+        ],
+        streaming: True
     }
-    headers = {
-        "Content-Type": "application/json"
-    }
-
+    pydantic_data = ServeTTSRequest(**data)
     max_retries = 2
     for attempt in range(max_retries):
-        response = requests.request("POST", url, json=payload, headers=headers)
+        response = requests.post(
+            url,
+            data=ormsgpack.packb(pydantic_data, option=ormsgpack.OPT_SERIALIZE_PYDANTIC),
+            stream=True,
+            headers={
+                "authorization": "Bearer YOUR_API_KEY",
+                "content-type": "application/msgpack",
+            },
+        )
+        print("resonse: ",response)
         if response.status_code == 200:
             wav_file_path = Path(save_path).with_suffix('.wav')
             wav_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -97,3 +165,6 @@ def fish_tts_local(text,save_path,number,task_df):
             rprint(f"[bold red]Request failed, status code: {response.status_code}, retry attempt: {attempt + 1}/{max_retries}[/bold red]")
             if attempt == max_retries - 1:
                 rprint("[bold red]Max retry attempts reached, operation failed.[/bold red]")
+
+if __name__ == '__main__':
+    fish_tts("今天是个好日子！", "fish_tts.wav")
