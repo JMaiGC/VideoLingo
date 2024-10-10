@@ -10,7 +10,7 @@ import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
 from core.all_tts_functions.openai_tts import openai_tts
-from core.all_tts_functions.fish_tts import fish_tts
+from core.all_tts_functions.fish_tts import fish_tts, fish_tts_local
 from core.all_tts_functions.azure_tts import azure_tts
 from core.prompts_storage import get_subtitle_trim_prompt
 from core.ask_gpt import ask_gpt
@@ -38,7 +38,7 @@ def tts_main(text, save_as, number, task_df):
         #! 注意 gpt_sovits_tts 只支持输出中文，输入中文或英文
         gpt_sovits_tts_for_videolingo(text, save_as, number, task_df)
     elif TTS_METHOD == 'fish_tts':
-        fish_tts(text, save_as)
+        fish_tts_local(text, save_as, number, task_df)
     elif TTS_METHOD == 'azure_tts':
         azure_tts(text, save_as)
 
@@ -65,14 +65,14 @@ def generate_audio(text, target_duration, save_as, number, task_df):
         rprint(f"⚠️ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED_FACTOR}")
     else:  # speed_factor > MAX_SPEED_FACTOR
         rprint(f"🚨 {number} Speed factor out of range: {speed_factor:.2f}, attempting to simplify subtitle...")
-        
+
         original_text = text
         prompt = get_subtitle_trim_prompt(text, target_duration)
         response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim')
         shortened_text = response['trans_text_processed']
 
         rprint(f"Original subtitle: {original_text} | Simplified subtitle: {shortened_text}")
-        
+
         tts_main(shortened_text, temp_filename, number, task_df)
         new_original_duration = check_wav_duration(temp_filename)
         new_speed_factor = new_original_duration / (target_duration-0.03)
@@ -91,19 +91,19 @@ def generate_audio(text, target_duration, save_as, number, task_df):
             change_audio_speed(temp_filename, save_as, MIN_SPEED_FACTOR)
             final_duration = check_wav_duration(save_as)
             rprint(f"⚠️ {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED_FACTOR}")
-    
+
     #! check duration for safety
     if final_duration > target_duration:
         rprint(f"❎ {number} Final duration is longer than target duration: {final_duration:.2f}s | Required: {target_duration:.2f}s. This is a bug, please report it.")
         raise Exception()
-    
+
     if os.path.exists(temp_filename):
         os.remove(temp_filename)
 
 def change_audio_speed(input_file, output_file, speed_factor):
     atempo = speed_factor
     cmd = ['ffmpeg', '-i', input_file, '-filter:a', f'atempo={atempo}', '-y', output_file]
-    
+
     max_retries = 3
     for attempt in range(max_retries):
         try:
@@ -152,7 +152,7 @@ def process_sovits_tasks():
         error_msg = f"The following tasks failed to process: {', '.join(map(str, error_tasks))}"
         rprint(Panel(error_msg, title="Failed Tasks", border_style="red"))
         raise Exception("tasks failed to process, please check cli output for details")
-    
+
     rprint(Panel("Task processing completed", title="Success", border_style="green"))
 
 if __name__ == "__main__":

@@ -67,11 +67,13 @@ azure_tts:
 
 # SoVITS configuration
 gpt_sovits:
+  base_url: 'http://127.0.0.1:9880/tts'
   character: 'Huanyuv2'
   refer_mode: 3
 
 # FishTTS configuration
 fish_tts:
+  base_url: 'https://api.fish.audio/v1/tts'
   api_key: 'YOUR_FISH_API_KEY'
   character: 'AD学姐'
   character_id_dict:
