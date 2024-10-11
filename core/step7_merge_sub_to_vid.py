@@ -23,7 +23,7 @@ SRC_OUTLINE_WIDTH = 1
 SRC_SHADOW_COLOR = '&H80000000'
 TRANS_FONT_COLOR = '&H00FFFF'
 TRANS_OUTLINE_COLOR = '&H000000'
-TRANS_OUTLINE_WIDTH = 1 
+TRANS_OUTLINE_WIDTH = 1
 TRANS_BACK_COLOR = '&H33000000'
 
 def merge_subtitles_to_video():
@@ -56,10 +56,28 @@ def merge_subtitles_to_video():
 
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
+        # '-i',en_srt,
+        # '-i', trans_srt,
+        # '-metadata:s:s:0',
+        # 'title=English' ,
+        # '-metadata:s:s:0',
+        # 'language=eng',
+        # '-metadata:s:s:1',
+        # 'title=Chinese' ,
+        # '-metadata:s:s:1',
+        # 'language=chn',
+        # '-map',
+        # '1:s',
+        # '-map',
+        # '2:s',
+        # '-c:s',
+        # 'mov_text',
+        # '-map',
+        # '0:v',
         '-vf', (
             f"scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,"
             f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,"
-            f"subtitles={en_srt}:force_style='FontSize={SRC_FONT_SIZE},FontName={FONT_NAME}," 
+            f"subtitles={en_srt}:force_style='FontSize={SRC_FONT_SIZE},FontName={FONT_NAME},"
             f"PrimaryColour={SRC_FONT_COLOR},OutlineColour={SRC_OUTLINE_COLOR},OutlineWidth={SRC_OUTLINE_WIDTH},"
             f"ShadowColour={SRC_SHADOW_COLOR},BorderStyle=1',"
             f"subtitles={trans_srt}:force_style='FontSize={TRANS_FONT_SIZE},FontName={TRANS_FONT_NAME},"
@@ -77,7 +95,7 @@ def merge_subtitles_to_video():
     try:
         for line in process.stdout:
             print(line, end='')  # Print FFmpeg output in real-time
-        
+
         process.wait()
         if process.returncode == 0:
             print(f"\n[Process completed in {time.time() - start_time:.2f} seconds.]")
