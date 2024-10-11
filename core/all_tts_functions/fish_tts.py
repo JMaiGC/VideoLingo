@@ -127,7 +127,7 @@ def fish_tts_local(text,save_path,number,task_df):
         "references": [
             ServeReferenceAudio(audio=byte_audio, text=ref_text)
         ],
-        streaming: True
+        "streaming": True
     }
     pydantic_data = ServeTTSRequest(**data)
     max_retries = 2
