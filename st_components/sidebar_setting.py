@@ -27,7 +27,7 @@ def page_setting():
                     st.toast("API Key is valid", icon="✅")
                 else:
                     st.toast("API Key is invalid", icon="❌")
-    
+
     with st.expander("Transcription and Subtitle Settings", expanded=True):
         whisper_method_options = ["whisperX 💻", "whisperX ☁️"]
         whisper_method_mapping = {"whisperX 💻": "whisperx", "whisperX ☁️": "whisperxapi"}
@@ -85,7 +85,7 @@ def page_setting():
 
         if resolution != load_key("resolution"):
             update_key("resolution", resolution)
-        
+
     with st.expander("Dubbing Settings", expanded=False):
         tts_methods = ["openai_tts", "azure_tts", "gpt_sovits", "fish_tts"]
         selected_tts_method = st.selectbox("TTS Method", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
@@ -106,6 +106,14 @@ def page_setting():
                 update_key("openai_tts.base_url", oai_api_base_url)
 
         elif selected_tts_method == "fish_tts":
+            fish_tts_base_url = st.text_input("Fish TTS Base URL", value=load_key("fish_tts.base_url"))
+            if fish_tts_base_url != load_key("fish_tts.base_url"):
+                update_key("fish_tts.base_url", fish_tts_base_url)
+
+            fish_tts_server_type = st.text_input("Fish TTS Server Type", value=load_key("fish_tts.type"))
+            if fish_tts_server_type != load_key("fish_tts.type"):
+                update_key("fish_tts.type", fish_tts_server_type)
+
             fish_tts_api_key = st.text_input("Fish TTS API Key", value=load_key("fish_tts.api_key"))
             if fish_tts_api_key != load_key("fish_tts.api_key"):
                 update_key("fish_tts.api_key", fish_tts_api_key)
@@ -114,9 +122,8 @@ def page_setting():
             if fish_tts_character != load_key("fish_tts.character"):
                 update_key("fish_tts.character", fish_tts_character)
 
-            fish_tts_base_url = st.text_input(gls("fish_tts_base_url"), value=load_key("fish_tts.base_url"))
-            if fish_tts_base_url != load_key("fish_tts.base_url"):
-                update_key("fish_tts.base_url", fish_tts_base_url)
+
+
         elif selected_tts_method == "azure_tts":
             azure_key = st.text_input("Azure Key", value=load_key("azure_tts.key"))
             if azure_key != load_key("azure_tts.key"):
