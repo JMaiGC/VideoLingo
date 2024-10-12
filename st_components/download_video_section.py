@@ -45,7 +45,7 @@ def download_video_section():
 
             uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
             if uploaded_file:
-                #delte file in output
+                #delete file in output
                 if os.path.exists("output"):
                     shutil.rmtree("output")
                 os.makedirs("output", exist_ok=True)

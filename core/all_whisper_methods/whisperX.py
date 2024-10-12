@@ -29,14 +29,14 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
             batch_size = 2
             compute_type = "int8"
         elif gpu_mem <= 8:
-            batch_size = 4
+            batch_size = 2
             compute_type = "int8"
         else:
             batch_size = 16
             compute_type = "float16"
         rprint(f"[cyan]GPU memory:[/cyan] {gpu_mem:.2f} GB, [cyan]Batch size:[/cyan] {batch_size}")
     else:
-        batch_size = 4
+        batch_size = 2
         compute_type = "int8"
 
     rprint(f"[green]Starting WhisperX for segment {start:.2f}s to {end:.2f}s...[/green]")
