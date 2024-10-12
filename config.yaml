@@ -10,7 +10,7 @@ api:
 replicate_api_token: "YOUR_REPLICATE_API_TOKEN"
 
 # Language settings, written into the prompt, can be described in natural language
-target_language: "简体中文"
+target_language: 'Chinese'
 
 whisper:
   # Whisper settings [whisperx, whisperxapi]
@@ -24,14 +24,6 @@ whisper:
 resolution: "1920x1080"
 
 ## ======================== Advanced Settings ======================== ##
-# Web display language, auto for automatic detection based on system [zh_CN, en_US, auto]
-display_language: "en_US"
-
-# * HTTP proxy settings
-http_proxy:
-  use: false
-  address: "socks5://192.168.2.1:38080"
-
 # *Default resolution for downloading YouTube videos [360, 1080, best]
 ytb_resolution: "best"
 
@@ -75,13 +67,10 @@ fish_tts:
   base_url: http://127.0.0.1:8080/v1/tts
   type: local
   api_key: "cecf71c7655c46c489336cc14292273d"
-  character: "AD学姐"
+  character: "AD 学姐"
   character_id_dict:
-    "AD学姐": "7f92f8afb8ec43bf81429cc1c9199cb1"
-    "丁真": "54a5170264694bfc8e9ad98df7bd89c3"
-    "赛马娘": "0eb38bc974e1459facca38b359e13511"
-    "蔡徐坤": "e4642e5edccd4d9ab61a69e82d4f8a14"
-    "雷军": "738d0cc1a3e9430a9de2b544a466a7fc"
+    'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
+    '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
 
 # *Audio speed range
 speed_factor:
@@ -144,8 +133,5 @@ language_split_with_space:
 
 # Languages that do not use space as separator
 language_split_without_space:
-  - "zh"
-  - "ja"
-
-video:
-  resolution: "0x0"
+- 'zh'
+- 'ja'
