@@ -39,7 +39,7 @@ def page_setting():
                     st.toast("API Key is valid", icon="✅")
                 else:
                     st.toast("API Key is invalid", icon="❌")
-    
+
     with st.expander(gls("subtitle_settings"), expanded=True):
         whisper_method_options = ["whisperX 💻", "whisperX ☁️"]
         whisper_method_mapping = {"whisperX 💻": "whisperx", "whisperX ☁️": "whisperxapi"}
@@ -52,7 +52,7 @@ def page_setting():
             uvr_before_transcription = st.toggle(gls("uvr_before_transcription"), value=load_key("whisper.uvr_before_transcription"), help=gls("uvr_before_transcription_help"))
             if uvr_before_transcription != load_key("whisper.uvr_before_transcription"):
                 update_key("whisper.uvr_before_transcription", uvr_before_transcription)
-        elif selected_whisper_method == "whisperxapi":    
+        elif selected_whisper_method == "whisperxapi":
             col1, col2 = st.columns([4, 1])
             with col1:
                 replicate_api_token = st.text_input(gls("replicate_api_token"), value=load_key("replicate_api_token"), help=gls("replicate_api_token_help"))
@@ -64,7 +64,7 @@ def page_setting():
                         st.toast("Replicate API Token is valid", icon="✅")
                     else:
                         st.toast("Replicate API Token is invalid", icon="❌")
-            
+
         col1, col2 = st.columns(2)
         with col1:
             whisper_language_options = ["en", "zh", "auto"]
@@ -97,7 +97,7 @@ def page_setting():
 
         if resolution != load_key("resolution"):
             update_key("resolution", resolution)
-        
+
     with st.expander(gls("dubbing_settings"), expanded=False):
         tts_methods = ["openai_tts", "azure_tts", "gpt_sovits", "fish_tts"]
         selected_tts_method = st.selectbox(gls("tts_method"), options=tts_methods, index=tts_methods.index(load_key("tts_method")))
@@ -126,6 +126,9 @@ def page_setting():
             if fish_tts_character != load_key("fish_tts.character"):
                 update_key("fish_tts.character", fish_tts_character)
 
+            fish_tts_base_url = st.text_input(gls("fish_tts_base_url"), value=load_key("fish_tts.base_url"))
+            if fish_tts_base_url != load_key("fish_tts.base_url"):
+                update_key("fish_tts.base_url", fish_tts_base_url)
         elif selected_tts_method == "azure_tts":
             azure_key = st.text_input(gls("azure_key"), value=load_key("azure_tts.key"))
             if azure_key != load_key("azure_tts.key"):
@@ -144,7 +147,7 @@ def page_setting():
             sovits_character = st.text_input(gls("sovits_character"), value=load_key("gpt_sovits.character"))
             if sovits_character != load_key("gpt_sovits.character"):
                 update_key("gpt_sovits.character", sovits_character)
-            
+
             refer_mode_options = {1: "模式1：仅用提供的参考音频", 2: "模式2：仅用视频第1条语音做参考", 3: "模式3：使用视频每一条语音做参考"}
             selected_refer_mode = st.selectbox(
                 gls("refer_mode"),
@@ -174,7 +177,7 @@ def page_setting():
         update_key("display_language", language_mapping[selected_display_language])
         time.sleep(0.2)
         st.rerun()
-            
+
 
 def valid_llm_api():
     try:
