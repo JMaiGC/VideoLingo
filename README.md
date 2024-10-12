@@ -101,6 +101,11 @@ Experience VideoLingo quickly in Colab in just 5 minutes:
 
 VideoLingo offers two local installation methods: **One-click Simple Package** and **Source Code Installation**. Please refer to the installation documentation: [English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
+
+### Docker Installation
+
+VideoLingo provides a Dockerfile for Docker installation. Please refer to the installation documentation: [English](/docs/pages/docs/docker.en-US.md) | [简体中文](/docs/pages/docs/docker.zh-CN.md)
+
 ## 🏭 Batch Mode
 
 Usage instructions: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
@@ -146,6 +151,7 @@ We sincerely thank the following open-source projects for their contributions, w
 - Submit [Issues](https://github.com/Huanshere/VideoLingo/issues) or [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls) on GitHub
 - Follow me on Twitter: [@Huanshere](https://twitter.com/Huanshere)
 - Visit the official website: [videolingo.io](https://videolingo.io)
+- Email me at: team@videolingo.io
 
 ## ⭐ Star History
 
