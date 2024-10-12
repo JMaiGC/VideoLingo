@@ -63,7 +63,7 @@ def get_sentence_timestamps(df_words, df_sentences):
             if decreasing_count >= 5:
                 break
             word_index += 1
-        
+
         #! Originally 0.9, but for very short sentences, a single space can cause a difference of 0.8, so we lower the threshold
         if best_match['score'] >= 0.75:
             time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
@@ -71,9 +71,9 @@ def get_sentence_timestamps(df_words, df_sentences):
         else:
             print(f"⚠️ Warning: No match found for sentence: {sentence}\nOriginal: {repr(sentence)}\nMatched: {best_match['phrase']}\nSimilarity: {best_match['score']:.2f}\n{'─' * 50}")
             raise ValueError("❎ No match found for sentence. Please delete the 'output' directory and rerun the process, ensuring UVR is activated before transcription.")
-        
+
         start_index = word_index  # update start_index for the next sentence
-    
+
     return time_stamp_list
 
 def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output_dir: str, for_display: bool = True):
@@ -113,7 +113,7 @@ def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output
             subtitle_str = generate_subtitle_string(df_trans_time, columns)
             with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
                 f.write(subtitle_str)
-    
+
     return df_trans_time
 
 def align_timestamp_main():
@@ -124,13 +124,13 @@ def align_timestamp_main():
     # check if there's empty translation
     empty_rows = df_translate[df_translate['Translation'].str.len() == 0]
     if not empty_rows.empty:
-        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
+        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output/log/translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
         console.print(empty_rows.index.tolist())
         if 'sonnet' not in load_key("api.model"):
             raise ValueError("Empty translation rows detected, this is likely due to weak model, please use claude-3-5-sonnet or manually adjust the empty rows.")
         else:
             raise ValueError("Empty translation rows detected. This is weird, please keep the `output` folder and raise an issue.")
-    subtitle_output_configs = [ 
+    subtitle_output_configs = [
         ('src_subtitles.srt', ['Source']),
         ('trans_subtitles.srt', ['Translation']),
         ('bilingual_src_trans_subtitles.srt', ['Source', 'Translation']),
@@ -143,7 +143,7 @@ def align_timestamp_main():
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
     if (df_translate_for_audio['Translation'].str.len() == 0).sum() > 0:
-        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results.xlsx` and fill them with appropriate content, then run again.[/bold red]"))
+        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the empty rows in `output/log/translation_results.xlsx` and fill them with appropriate content, then run again.[/bold red]"))
         raise ValueError("Empty translation rows detected")
     subtitle_output_configs = [
         ('src_subs_for_audio.srt', ['Source']),
@@ -151,7 +151,7 @@ def align_timestamp_main():
     ]
     align_timestamp(df_text, df_translate_for_audio, subtitle_output_configs, 'output/audio')
     console.print(Panel("[bold green]🎉📝 Audio subtitles generation completed! Please check in the `output/audio` folder 👀[/bold green]"))
-    
+
 
 if __name__ == '__main__':
     align_timestamp_main()
