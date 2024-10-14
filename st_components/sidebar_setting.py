@@ -110,10 +110,6 @@ def page_setting():
             if fish_tts_base_url != load_key("fish_tts.base_url"):
                 update_key("fish_tts.base_url", fish_tts_base_url)
 
-            fish_tts_server_type = st.text_input("Fish TTS Server Type", value=load_key("fish_tts.type"))
-            if fish_tts_server_type != load_key("fish_tts.type"):
-                update_key("fish_tts.type", fish_tts_server_type)
-
             fish_tts_api_key = st.text_input("Fish TTS API Key", value=load_key("fish_tts.api_key"))
             if fish_tts_api_key != load_key("fish_tts.api_key"):
                 update_key("fish_tts.api_key", fish_tts_api_key)

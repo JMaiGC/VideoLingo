@@ -11,7 +11,8 @@ from typing import Annotated, Literal, Optional
 from pydantic import BaseModel, Field, conint
 import ormsgpack
 
-from fish_audio_sdk import Session, TTSRequest, ReferenceAudio
+from fish_audio_sdk import Session
+from fish_audio_sdk.schemas import ReferenceAudio, TTSRequest
 
 class ServeReferenceAudio(BaseModel):
     audio: bytes
@@ -83,7 +84,7 @@ def fish_tts(text,save_path,number,task_df):
             data=ormsgpack.packb(pydantic_data, option=ormsgpack.OPT_SERIALIZE_PYDANTIC),
             stream=True,
             headers={
-                "authorization": f"Bearer {fish_set['api_key']},
+                "authorization": f"Bearer {fish_set['api_key']}",
                 "content-type": "application/msgpack",
             },
         )
