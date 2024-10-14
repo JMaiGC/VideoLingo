@@ -83,7 +83,7 @@ def fish_tts(text,save_path,number,task_df):
             data=ormsgpack.packb(pydantic_data, option=ormsgpack.OPT_SERIALIZE_PYDANTIC),
             stream=True,
             headers={
-                "authorization": "Bearer YOUR_API_KEY",
+                "authorization": f"Bearer {fish_set['api_key']},
                 "content-type": "application/msgpack",
             },
         )
