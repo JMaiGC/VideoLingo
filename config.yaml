@@ -63,14 +63,11 @@ gpt_sovits:
   refer_mode: 3
 
 # FishTTS configuration
+# api https://api.fish.audio/v1/tts or http://127.0.0.1:8080/v1/tts
 fish_tts:
   base_url: http://127.0.0.1:8080/v1/tts
-  type: local
   api_key: "cecf71c7655c46c489336cc14292273d"
-  character: "AD 学姐"
-  character_id_dict:
-    'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
-    '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
+
 
 # *Audio speed range
 speed_factor:

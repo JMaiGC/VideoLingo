@@ -118,12 +118,6 @@ def page_setting():
             if fish_tts_api_key != load_key("fish_tts.api_key"):
                 update_key("fish_tts.api_key", fish_tts_api_key)
 
-            fish_tts_character = st.selectbox("Fish TTS Character", options=list(load_key("fish_tts.character_id_dict").keys()), index=list(load_key("fish_tts.character_id_dict").keys()).index(load_key("fish_tts.character")))
-            if fish_tts_character != load_key("fish_tts.character"):
-                update_key("fish_tts.character", fish_tts_character)
-
-
-
         elif selected_tts_method == "azure_tts":
             azure_key = st.text_input("Azure Key", value=load_key("azure_tts.key"))
             if azure_key != load_key("azure_tts.key"):
