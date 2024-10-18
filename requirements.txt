@@ -17,3 +17,5 @@ yt-dlp==2024.8.6
 json-repair
 ruamel.yaml
 fish_audio_sdk
+gradio
+ormsgpack
