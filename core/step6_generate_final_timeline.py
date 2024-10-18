@@ -1,5 +1,6 @@
 import pandas as pd
-import os, sys
+import os
+import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from difflib import SequenceMatcher
 import re
@@ -35,7 +36,7 @@ def get_sentence_timestamps(df_words, df_sentences):
     language = get_whisper_language() if whisper_language == 'auto' else whisper_language
     joiner = get_joiner(language)
 
-    for idx,sentence in df_sentences['Source'].items():
+    for idx, sentence in df_sentences['Source'].items():
         sentence = remove_punctuation(sentence.lower())
         best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0}
         decreasing_count = 0
@@ -91,10 +92,10 @@ def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output
     df_trans_time['duration'] = df_trans_time['timestamp'].apply(lambda x: x[1] - x[0])
 
     # Remove gaps 🕳️
-    for i in range(len(df_trans_time)-1):
-        delta_time = df_trans_time.loc[i+1, 'timestamp'][0] - df_trans_time.loc[i, 'timestamp'][1]
+    for i in range(len(df_trans_time) - 1):
+        delta_time = df_trans_time.loc[i + 1, 'timestamp'][0] - df_trans_time.loc[i, 'timestamp'][1]
         if 0 < delta_time < 1:
-            df_trans_time.at[i, 'timestamp'] = (df_trans_time.loc[i, 'timestamp'][0], df_trans_time.loc[i+1, 'timestamp'][0])
+            df_trans_time.at[i, 'timestamp'] = (df_trans_time.loc[i, 'timestamp'][0], df_trans_time.loc[i + 1, 'timestamp'][0])
 
     # Convert start and end timestamps to SRT format
     df_trans_time['timestamp'] = df_trans_time['timestamp'].apply(lambda x: convert_to_srt_format(x[0], x[1]))
@@ -105,7 +106,7 @@ def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output
 
     # Output subtitles 📜
     def generate_subtitle_string(df, columns):
-        return ''.join([f"{i+1}\n{row['timestamp']}\n{row[columns[0]].strip()}\n{row[columns[1]].strip() if len(columns) > 1 else ''}\n\n" for i, row in df.iterrows()]).strip()
+        return ''.join([f"{i + 1}\n{row['timestamp']}\n{row[columns[0]].strip()}\n{row[columns[1]].strip() if len(columns) > 1 else ''}\n\n" for i, row in df.iterrows()]).strip()
 
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
@@ -121,15 +122,6 @@ def align_timestamp_main():
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
     df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
-    # check if there's empty translation
-    empty_rows = df_translate[df_translate['Translation'].str.len() == 0]
-    if not empty_rows.empty:
-        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output/log/translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
-        console.print(empty_rows.index.tolist())
-        if 'sonnet' not in load_key("api.model"):
-            raise ValueError("Empty translation rows detected, this is likely due to weak model, please use claude-3-5-sonnet or manually adjust the empty rows.")
-        else:
-            raise ValueError("Empty translation rows detected. This is weird, please keep the `output` folder and raise an issue.")
     subtitle_output_configs = [
         ('src_subtitles.srt', ['Source']),
         ('trans_subtitles.srt', ['Translation']),
@@ -142,9 +134,6 @@ def align_timestamp_main():
     # for audio
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
-    if (df_translate_for_audio['Translation'].str.len() == 0).sum() > 0:
-        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the empty rows in `output/log/translation_results.xlsx` and fill them with appropriate content, then run again.[/bold red]"))
-        raise ValueError("Empty translation rows detected")
     subtitle_output_configs = [
         ('src_subs_for_audio.srt', ['Source']),
         ('trans_subs_for_audio.srt', ['Translation'])

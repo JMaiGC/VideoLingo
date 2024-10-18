@@ -98,9 +98,10 @@ allowed_video_formats:
   - "webm"
 
 allowed_audio_formats:
-  - "wav"
-  - "mp3"
-  - "flac"
+- 'wav'
+- 'mp3'
+- 'flac'
+- 'm4a'
 
 # LLMs that support returning JSON format
 llm_support_json:
