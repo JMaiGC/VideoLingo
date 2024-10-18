@@ -163,7 +163,7 @@ with gr.Blocks(css=".column-form .wrap {flex-direction: column;} .centered-label
                 )
 
             with gr.Accordion("Subtitle Settings", open=True):
-                whisper_method = gr.Dropdown(["whisperX 💻", "whisperX ☁️"], label="Whisper Method", value=load_key("whisper.method"), elem_classes="centered-label")
+                whisper_method = gr.Dropdown(["whisperX 💻", "whisperX ☁️"], label="Whisper Method", value=load_key("whisper.method"), elem_classes="centered-label", allow_custom_value=True)
                 whisper_method.change(on_whisper_method_change, inputs=[whisper_method], outputs=[whisper_method])
 
                 whisper_language = gr.Dropdown(["en", "zh", "auto"], label="Whisper Language", value=load_key("whisper.language"), elem_classes="centered-label")
@@ -175,14 +175,14 @@ with gr.Blocks(css=".column-form .wrap {flex-direction: column;} .centered-label
                 include_video = gr.Checkbox(label="Include Video", value=load_key("resolution") != "0x0", elem_classes="centered-label")
                 include_video.change(on_include_video_change, inputs=[include_video], outputs=[include_video])
 
-                resolution = gr.Dropdown(["1080p", "360p"], label="Video Resolution", value=load_key("resolution"), elem_classes="centered-label")
+                resolution = gr.Dropdown(["1080p", "360p"], label="Video Resolution", value=load_key("resolution"), elem_classes="centered-label", allow_custom_value=True)
                 resolution.change(on_resolution_change, inputs=[resolution], outputs=[resolution])
 
             with gr.Accordion("Dubbing Settings", open=False):
                 tts_method = gr.Dropdown(["openai_tts", "azure_tts", "gpt_sovits", "fish_tts"], label="TTS Method", value=load_key("tts_method"), elem_classes="centered-label")
                 tts_method.change(on_tts_method_change, inputs=[tts_method], outputs=[tts_method])
 
-                original_volume = gr.Dropdown(["Mute", "10%"], label="Original Volume", value=load_key("original_volume"), elem_classes="centered-label")
+                original_volume = gr.Dropdown(["Mute", "10%"], label="Original Volume", value=load_key("original_volume"), elem_classes="centered-label", allow_custom_value=True)
                 original_volume.change(on_original_volume_change, inputs=[original_volume], outputs=[original_volume])
 
                 oai_voice = gr.Textbox(label="OpenAI Voice", value=load_key("openai_tts.voice"), visible=False, elem_classes="centered-label")
@@ -267,4 +267,4 @@ with gr.Blocks(css=".column-form .wrap {flex-direction: column;} .centered-label
                 gr.Markdown('<div style="text-align: center;">Video Processing</div>')
 
 if __name__ == "__main__":
-    app.launch(server_name="0.0.0.0")
+    app.launch(server_name="0.0.0.0", debug=True)
