@@ -4,7 +4,7 @@
 api:
   key: ""
   base_url: "https://api.deepseek.com/"
-  model: "deepseek-chat"
+  model: "deepseek-coder"
 
 # Replicate API settings
 replicate_api_token: "YOUR_REPLICATE_API_TOKEN"
