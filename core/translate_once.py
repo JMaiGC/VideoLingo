@@ -14,12 +14,12 @@ def valid_translate_result(result: dict, required_keys: list, required_sub_keys:
     # Check for the required key
     if not all(key in result for key in required_keys):
         return {"status": "error", "message": f"Missing required key(s): {', '.join(set(required_keys) - set(result.keys()))}"}
-    
+
     # Check for required sub-keys in all items
     for key in result:
         if not all(sub_key in result[key] for sub_key in required_sub_keys):
             return {"status": "error", "message": f"Missing required sub-key(s) in item {key}: {', '.join(set(required_sub_keys) - set(result[key].keys()))}"}
-    
+
     # Check if all sub-keys values are not empty
     def remove_punctuation(text):
         return re.sub(r'[^\w\s]', '', text).strip()
@@ -28,7 +28,7 @@ def valid_translate_result(result: dict, required_keys: list, required_sub_keys:
             translate_result = remove_punctuation(result[key][sub_key]).strip()
             if not translate_result:
                 return {"status": "error", "message": f"Empty value for sub-key '{sub_key}' in item {key}"}
-    
+
     return {"status": "success", "message": "Translation completed"}
 
 def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_to_note_prompt, summary_prompt, index = 0):
@@ -39,7 +39,10 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
         def valid_faith(response_data):
             return valid_translate_result(response_data, ['1'], ['direct'])
         def valid_express(response_data):
-            return valid_translate_result(response_data, ['1'], ['free'])
+            if ('free' in response_data and response_data['free']):
+                return valid_translate_result(response_data, ['1'], ['free'])
+            else:
+                return valid_translate_result(response_data, ['1'], ['direct'])
         for retry in range(3):
             if step_name == 'faithfulness':
                 result = ask_gpt(prompt, response_json=True, valid_def=valid_faith, log_title=f'translate_{step_name}')
@@ -58,7 +61,7 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
     for i in faith_result:
         faith_result[i]["direct"] = faith_result[i]["direct"].replace('\n', ' ')
 
-    ## Step 2: Express Smoothly  
+    # Step 2: Express Smoothly
     prompt2 = get_prompt_expressiveness(faith_result, lines, shared_prompt)
     express_result = retry_translation(prompt2, 'expressiveness')
 

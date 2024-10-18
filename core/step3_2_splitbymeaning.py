@@ -58,27 +58,30 @@ def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0
             return {"status": "error", "message": "Missing required key: `best`"}
         return {"status": "success", "message": "Split completed"}
     response_data = ask_gpt(split_prompt + ' ' * retry_attempt, response_json=True, valid_def=valid_split, log_title='sentence_splitbymeaning')
-    best_split = response_data[f"split_{response_data['best']}"]
-    split_points = find_split_positions(sentence, best_split)
-    # split the sentence based on the split points
-    for i, split_point in enumerate(split_points):
-        if i == 0:
-            best_split = sentence[:split_point] + '\n' + sentence[split_point:]
-        else:
-            parts = best_split.split('\n')
-            last_part = parts[-1]
-            parts[-1] = last_part[:split_point - split_points[i-1]] + '\n' + last_part[split_point - split_points[i-1]:]
-            best_split = '\n'.join(parts)
-    if index != -1:
-        console.print(f'[green]✅ Sentence {index} has been successfully split[/green]')
-    table = Table(title="")
-    table.add_column("Type", style="cyan")
-    table.add_column("Sentence")
-    table.add_row("Original", sentence, style="yellow")
-    table.add_row("Split", best_split.replace('\n', ' ||'), style="yellow")
-    console.print(table)
-    
-    return best_split
+    if response_data['best'] != 'N/A':
+        best_split = response_data[f"split_{response_data['best']}"]
+        split_points = find_split_positions(sentence, best_split)
+        # split the sentence based on the split points
+        for i, split_point in enumerate(split_points):
+            if i == 0:
+                best_split = sentence[:split_point] + '\n' + sentence[split_point:]
+            else:
+                parts = best_split.split('\n')
+                last_part = parts[-1]
+                parts[-1] = last_part[:split_point - split_points[i - 1]] + '\n' + last_part[split_point - split_points[i - 1]:]
+                best_split = '\n'.join(parts)
+        if index != -1:
+            console.print(f'[green]✅ Sentence {index} has been successfully split[/green]')
+        table = Table(title="")
+        table.add_column("Type", style="cyan")
+        table.add_column("Sentence")
+        table.add_row("Original", sentence, style="yellow")
+        table.add_row("Split", best_split.replace('\n', ' ||'), style="yellow")
+        console.print(table)
+
+        return best_split
+    else:
+        return sentence
 
 def parallel_split_sentences(sentences, max_length, max_workers, nlp, retry_attempt=0):
     """Split sentences in parallel using a thread pool."""
