@@ -1,14 +1,9 @@
-import os, sys
+import os
+import sys
 import gradio as gr
-import os, sys, shutil
-import io, zipfile
+import shutil
 import re
-import time
-import requests
-
 from time import sleep
-import re
-import subprocess
 
 # SET PATH
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -17,13 +12,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from core.config_utils import load_key, update_key
 from core.step1_ytdlp import download_video_ytdlp, find_video_files
-from core import step2_whisper, step1_ytdlp, step3_1_spacy_split, step3_2_splitbymeaning
-from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline
-from core import step7_merge_sub_to_vid, step8_gen_audio_task, step9_uvr_audio, step10_gen_audio, step11_merge_audio_to_vid
-from core.onekeycleanup import cleanup
-from core.delete_retry_dubbing import delete_dubbing_files
 from core.ask_gpt import ask_gpt
-import io, zipfile
 
 def on_tts_method_change(tts_method):
     if tts_method != load_key("tts_method"):
@@ -121,6 +110,38 @@ def update_tts_settings(tts_method):
             )
         }
 
+def download_video(url, resolution):
+    progress = gr.Progress("Downloading video...")
+    download_video_ytdlp(url, resolution=resolution)
+    progress.update(100)  # Assuming the download is complete
+    video_file = find_video_files()
+    return video_file
+
+def delete_and_reselect():
+    video_file = find_video_files()
+    if video_file:
+        os.remove(video_file)
+        if os.path.exists("output"):
+            shutil.rmtree("output")
+        sleep(1)
+    return None
+
+def copy_local_video(local_path):
+    if os.path.exists("output"):
+        shutil.rmtree("output")
+    os.makedirs("output", exist_ok=True)
+    normalized_name = re.sub(r'[^\w\-_\.]', '', os.path.basename(local_path.name).replace(' ', '_'))
+    shutil.copy(local_path.name, os.path.join("output", normalized_name))
+    video_file = find_video_files()
+    return video_file
+
+def validate_api_key():
+    response, _ = ask_gpt("This is a test, response 'message':'success' in json format.", response_json=True, log_title='None')
+    if response and response.get('message') == 'success':
+        return "API Key is valid"
+    else:
+        return "API Key is invalid"
+
 with gr.Blocks(css=".column-form .wrap {flex-direction: column;} .centered-label {text-align: center;}") as app:
     with gr.Row():
         with gr.Column(visible=True, min_width=300, scale=1) as sidebar:
@@ -136,7 +157,7 @@ with gr.Blocks(css=".column-form .wrap {flex-direction: column;} .centered-label
                 model.change(lambda x: update_key("api.model", x), inputs=[model], outputs=[])
 
                 gr.Button("Validate API Key").click(
-                    lambda: "API Key is valid" if ask_gpt("This is a test, response 'message':'success' in json format.", response_json=True, log_title='None') and ask_gpt("This is a test, response 'message':'success' in json format.", response_json=True, log_title='None').get('message') == 'success' else "API Key is invalid",
+                    validate_api_key,
                     inputs=[],
                     outputs=gr.Textbox(label="Validation Status", elem_classes="centered-label")
                 )
@@ -209,9 +230,41 @@ with gr.Blocks(css=".column-form .wrap {flex-direction: column;} .centered-label
             gr.Markdown('<div style="text-align: center;">Main</div>')
             with gr.Accordion("Video Preparation", open=True):
                 gr.Markdown('<div style="text-align: center;">Prepare Video</div>')
+                video_preview = gr.Video()
+                delete_button = gr.Button("Delete and Reselect", key="delete_video_button")
+                delete_button.click(delete_and_reselect, inputs=[], outputs=video_preview)
+
+                with gr.Column():
+                        url = gr.Textbox(label="Enter YouTube Link")
+                        resolution_dict = {
+                            "360p": "360",
+                            "1080p": "1080",
+                            "Best": "best"
+                        }
+                        YTB_RESOLUTION = load_key("ytb_resolution")
+                        resolution_options = list(resolution_dict.keys())
+                        default_index = list(resolution_dict.values()).index(YTB_RESOLUTION) if YTB_RESOLUTION in resolution_dict.values() else 0
+                        resolution_display = gr.Dropdown(label="Resolution", choices=resolution_options, value=resolution_options[default_index])
+                        resolution = gr.State(resolution_dict[resolution_display.value])
+                        download_button = gr.Button("Download Video", key="download_button", size="sm")
+
+                        download_button.click(
+                            download_video,
+                            inputs=[url, resolution_display],
+                            outputs=video_preview
+                        )
+                with gr.Column():
+                    local_video_path = gr.File(label="Or Select Local Video File")
+                    copy_local_video_button = gr.Button("Copy Local Video", key="copy_local_video_button", size="sm")
+                    copy_local_video_button.click(
+                        copy_local_video,
+                        inputs=[local_video_path],
+                        outputs=video_preview
+                    )
             with gr.Accordion("Subtitles Processing", open=True):
                 gr.Markdown('<div style="text-align: center;">Subtitles Processing</div>')
-            with gr.Accordion("Subtitles Processing", open=True):
-                gr.Markdown('<div style="text-align: center;">Subtitles Processing</div>')
+            with gr.Accordion("Video Processing", open=True):
+                gr.Markdown('<div style="text-align: center;">Video Processing</div>')
+
 if __name__ == "__main__":
-    app.launch(share=True,server_name="0.0.0.0")
+    app.launch(server_name="0.0.0.0")
