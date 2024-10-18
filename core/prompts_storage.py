@@ -18,7 +18,7 @@ Your task is to split the given subtitle text into **{num_parts}** parts, each s
 ### Requirements
 1. Try to maintain the coherence of the sentence meaning, split according to Netflix subtitle standards, ensuring the two parts are relatively independent.
 2. The length of each part should be roughly equal, no part should be less than 3 words, but the integrity of the sentence is more important.
-3. Prioritize splitting at punctuation marks, such as periods, commas, and conjunctions (e.g., "and", "but", "because", "when", "then", "if", "so", "that").
+3. Prioritize splitting at punctuation marks, such as periods, commas, question mark, exclamation mark,and conjunctions (e.g., "and", "but", "because", "when", "then", "if", "so", "that").
 
 ### Steps
 1. Analyze the grammar and structure of the given text.
@@ -53,14 +53,14 @@ def get_summary_prompt(source_content):
 ### Role
 You are a professional video translation expert and terminology consultant. Your expertise lies not only in accurately understanding the original {src_language} text but also in extracting key professional terms and optimizing the translation to better suit the expression habits and cultural background of {TARGET_LANGUAGE}.
 
-### Task Description 
+### Task Description
 For the provided original {src_language} video text, you need to:
 1. Summarize the video's main topic in one sentence
 2. Extract professional terms and names that appear in the video, and provide {TARGET_LANGUAGE} translations or suggest keeping the original language terms. Avoid extracting simple, common words.
 3. For each translated term or name, provide a brief explanation
 
 ### Analysis and Summary Steps
-Please think in two steps, processing the text line by line:  
+Please think in two steps, processing the text line by line:
 1. Topic summarization:
    - Quickly skim through the entire text to understand the general idea
    - Summarize the topic in one concise sentence
@@ -143,7 +143,7 @@ def get_prompt_faithfulness(lines, shared_prompt):
     TARGET_LANGUAGE = load_key("target_language")
     # Split lines by \n
     line_splits = lines.split('\n')
-    
+
     # Create JSON return format example
     json_format = {}
     for i, line in enumerate(line_splits, 1):
@@ -151,7 +151,7 @@ def get_prompt_faithfulness(lines, shared_prompt):
             "origin": line,
             "direct": f"<<direct {TARGET_LANGUAGE} translation>>"
         }
-    
+
     src_language = get_whisper_language()
     prompt_faithfulness = f'''
 ### Role Definition
@@ -310,7 +310,7 @@ Please complete the following JSON data, where << >> represents placeholders, an
 ## ================================================================
 # @ step8_gen_audio_task.py @ step10_gen_audio.py
 def get_subtitle_trim_prompt(trans_text, duration):
- 
+
     rule = '''Consider a. Reducing filler words without modifying meaningful content. b. Omitting unnecessary modifiers or pronouns, for example:
     - "Please explain your thought process" can be shortened to "Please explain thought process"
     - "We need to carefully analyze this complex problem" can be shortened to "We need to analyze this problem"
