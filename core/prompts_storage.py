@@ -18,7 +18,8 @@ Your task is to split the given subtitle text into **{num_parts}** parts, each s
 ### Requirements
 1. Try to maintain the coherence of the sentence meaning, split according to Netflix subtitle standards, ensuring the two parts are relatively independent.
 2. The length of each part should be roughly equal, no part should be less than 3 words, but the integrity of the sentence is more important.
-3. Prioritize splitting at punctuation marks, such as periods, commas, question mark, exclamation mark,and conjunctions (e.g., "and", "but", "because", "when", "then", "if", "so", "that").
+3. Prioritize splitting at punctuation marks, such as periods, commas, question mark, exclamation mark, and conjunctions (e.g., "and", "but", "because", "when", "then", "if", "so", "that").
+4. don't store the single punctuation marks, such as periods, commas, question mark, exclamation mark, and conjunctions (e.g., "and", "but", "because", "when", "then", "if", "so", "that") as a new sentence
 
 ### Steps
 1. Analyze the grammar and structure of the given text.
