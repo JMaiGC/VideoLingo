@@ -37,6 +37,8 @@ def get_sentence_timestamps(df_words, df_sentences):
     joiner = get_joiner(language)
 
     for idx, sentence in df_sentences['Source'].items():
+        if len(sentence) <2:
+            continue
         sentence = remove_punctuation(sentence.lower())
         best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0}
         decreasing_count = 0
@@ -66,7 +68,7 @@ def get_sentence_timestamps(df_words, df_sentences):
             word_index += 1
 
         #! Originally 0.9, but for very short sentences, a single space can cause a difference of 0.8, so we lower the threshold
-        if best_match['score'] >= 0.75:
+        if ('score' in best_match and best_match['score'] >= 0.75):
             time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
             word_index = start_index + best_match['word_count']  # update word_index to the start of the next sentence
         else:
@@ -122,6 +124,11 @@ def align_timestamp_main():
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
     df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
+    # check if there's empty translation
+    empty_rows = df_translate[df_translate['Translation'].str.len() == 0]
+    if not empty_rows.empty:
+        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output/log/translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
+        console.print("empty rows: {}".format(empty_rows.index.tolist()))
     subtitle_output_configs = [
         ('src_subtitles.srt', ['Source']),
         ('trans_subtitles.srt', ['Translation']),
